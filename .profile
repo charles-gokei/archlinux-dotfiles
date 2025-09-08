@@ -34,3 +34,5 @@ export LANG=en_US.UTF-8
 export HISTFILE=$HOME/.bash_history
 export HISTCONTROL=eraseduplicates:ignoreboth
 
+
+. "$HOME/.atuin/bin/env"

@@ -123,3 +123,8 @@ if [ -d $BASH_AUTOLOAD_DIR ] ; then
   for i in `find $BASH_AUTOLOAD_DIR -name '*.sh'`; do . $i; done;
 fi
 
+
+. "$HOME/.atuin/bin/env"
+
+[[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+eval "$(atuin init bash)"
