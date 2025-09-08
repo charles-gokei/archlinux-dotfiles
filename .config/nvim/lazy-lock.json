@@ -1,5 +1,6 @@
 {
   "AstroNvim": { "branch": "main", "commit": "9417da143b971e65b159089c3de5a0ee37edb1fd" },
+  "CopilotChat.nvim": { "branch": "main", "commit": "1d8aa27e2317950b0b7ddc023487c6f2b7b074ca" },
   "LuaSnip": { "branch": "master", "commit": "458560534a73f7f8d7a11a146c801db00b081df0" },
   "aerial.nvim": { "branch": "master", "commit": "3284a2cb858ba009c79da87d5e010ccee3c99c4d" },
   "astrocommunity": { "branch": "main", "commit": "3d2f6d77920d2ec7a8bfffd200706c5050543c3b" },
@@ -35,7 +36,6 @@
   "nvim-autopairs": { "branch": "master", "commit": "23320e75953ac82e559c610bec5a90d9c6dfa743" },
   "nvim-dap": { "branch": "master", "commit": "14fe46ae16eb272629144a93f7738f5279665a4f" },
   "nvim-dap-ui": { "branch": "master", "commit": "73a26abf4941aa27da59820fd6b028ebcdbcf932" },
-  "nvim-dap-vscode-js": { "branch": "main", "commit": "03bd29672d7fab5e515fc8469b7d07cc5994bbf6" },
   "nvim-highlight-colors": { "branch": "main", "commit": "b42a5ccec7457b44e89f7ed3b3afb1b375bb2093" },
   "nvim-lsp-file-operations": { "branch": "master", "commit": "9744b738183a5adca0f916527922078a965515ed" },
   "nvim-lspconfig": { "branch": "master", "commit": "fa2662510d30b06168b6e2e6915518decde6bbac" },
