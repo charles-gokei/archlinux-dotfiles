@@ -29,3 +29,16 @@ f-cat() {
 alias ls='f-ls'
 alias cat='f-cat'
 
+[[ ! -x /home/linuxbrew/.linuxbrew/bin/brew ]] || eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+alias {vi,vim}=nvim
+
+export DOTFILES_GIT_DIR=$HOME/.dotfiles/
+
+dotfiles() {
+  git_dir=$DOTFILES_GIT_DIR
+
+  [[ ! -d ${git_dir} ]] && return 1 || git --git-dir=${git_dir} --work-tree=$HOME "$@"
+}
+
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+
