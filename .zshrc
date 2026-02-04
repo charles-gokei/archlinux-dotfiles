@@ -62,6 +62,206 @@ set-openfortivpn-password() {
   export OPENFORTIVPN_PASSWORD=`gum input --password`
 }
 
+# TODO: Refactor it
+# SSH Connection
+# ===
+
+connect-ssh() {
+  zparseopts -E -D -- \
+    -target:=TARGET
+
+  case "${TARGET}" in
+    '--target bmp-274-hml')
+      if [ -z "$SSHPASS_10_204_205_15" ]; then
+        echo "\"SSHPASS_10_204_205_15\" variable wasn't set, trying to export..." > /dev/stderr
+        set-sshpass-environment --target bmp-274-hml
+      fi
+      sshpass -eSSHPASS_10_204_205_15 ssh charles.sena@10.204.205.15
+      ;;
+
+    '--target bmp-274-prd')
+      if [ -z "$SSHPASS_10_204_206_2" ]; then
+        echo "\"SSHPASS_10_204_206_2\" variable wasn't set, trying to export..." > /dev/stderr
+        set-sshpass-environment --target bmp-274-prd
+      fi
+      sshpass -eSSHPASS_10_204_206_2 ssh charles.sena@10.204.206.2
+      ;;
+
+    '--target bmp-531-prd')
+      if [ -z "$SSHPASS_10_204_151_2" ]; then
+        echo "\"SSHPASS_10_204_151_2\" variable wasn't set, trying to export..." > /dev/stderr
+        set-sshpass-environment --target bmp-531-prd
+      fi
+      sshpass -eSSHPASS_10_204_151_2 ssh charles.sena@10.204.151.2
+
+      ;;
+
+    '--target our-prd')
+      if [ -z "$SSHPASS_10_204_155_2" ]; then
+        echo "\"SSHPASS_10_204_155_2\" variable wasn't set, trying to export..." > /dev/stderr
+        set-sshpass-environment --target our-prd
+      fi
+      sshpass -eSSHPASS_10_204_155_2 ssh charles.sena@10.204.155.2
+
+      ;;
+
+
+    *)
+      echo 'Invalid target' > /dev/stderr
+      return 1
+      ;;
+  esac
+}
+
+mount-ssh() {
+  zparseopts -E -D -- \
+    -target:=TARGET
+
+  
+  case ${TARGET[2]} in
+    bmp-274-hml)
+      if [ -z "$SSHPASS_10_204_205_15" ];then
+        "\"SSHPASS_10_204_204_15\" variable wasn't set, trying to export..."
+        set-sshpass-environment --target bmp-274-hml
+      fi
+
+      REMOTE_PATH='charles.sena@10.204.205.15:/var/www'
+      LOCAL_PATH="$HOME/.local/mnt/10.204.205.15/"
+
+      sshfs $REMOTE_PATH $LOCAL_PATH -o allow_other -o password_stdin \
+        < <(echo $SSHPASS_10_204_205_15) \
+        && echo "🗀 \"$REMOTE_PATH\" was mount at \"$LOCAL_PATH\"" \
+        || echo "✖️ Something goes wrong trying to mount \"$REMOTE_PATH\" at \"$LOCAL_PATH\""
+
+      ;;
+
+    bmp-274-prd)
+      if [ -z "$SSHPASS_10_204_206_2" ];then
+        "\"SSHPASS_10_204_206_2\" variable wasn't set, trying to export..."
+        set-sshpass-environment --target ${TARGET[2]}
+      fi
+
+      REMOTE_PATH='charles.sena@10.204.206.2:/var/www'
+      LOCAL_PATH="$HOME/.local/mnt/10.204.206.2/"
+
+      sshfs $REMOTE_PATH $LOCAL_PATH -o allow_other -o password_stdin \
+        < <(echo $SSHPASS_10_204_206_2) \
+        && echo "🗀 \"$REMOTE_PATH\" was mount at \"$LOCAL_PATH\"" \
+        || echo "✖️ Something goes wrong trying to mount \"$REMOTE_PATH\" at \"$LOCAL_PATH\""
+
+      ;;
+    
+    bmp-531-prd)
+      if [ -z "$SSHPASS_10_204_151_2" ];then
+        "\"SSHPASS_10_204_151_2\" variable wasn't set, trying to export..."
+        set-sshpass-environment --target bmp-531-prd
+      fi
+
+      REMOTE_PATH='charles.sena@10.204.151.2:/var/www'
+      LOCAL_PATH="$HOME/.local/mnt/10.204.151.2/"
+
+      sshfs $REMOTE_PATH $LOCAL_PATH -o allow_other -o password_stdin \
+        < <(echo $SSHPASS_10_204_151_2) \
+        && echo "🗀 \"$REMOTE_PATH\" was mount at \"$LOCAL_PATH\"" \
+        || echo "✖️ Something goes wrong trying to mount \"$REMOTE_PATH\" at \"$LOCAL_PATH\""
+
+      ;;
+
+    *)
+      echo "Unknown target"
+      ;;
+  esac
+
+}
+
+set-sshpass-environment() {
+  zparseopts -E -D -- \
+    -target:=TARGET
+
+  case "${TARGET[2]}" in
+    bmp-274-hml)
+      set-sshpass-environment-bmp-274-hml
+      ;;
+
+    bmp-274-prd)
+      set-sshpass-environment-bmp-274-prd
+      ;;
+
+    bmp-531-prd)
+      set-sshpass-environment-bmp-531-prd
+      ;;
+
+    our-prd)
+      set-sshpass-environment-our-prd
+      ;;
+
+    *)
+      echo "set-sshpass-environment: Invalid target" > /dev/stderr
+      return 1
+      ;;
+  esac
+}
+
+set-sshpass-environment-bmp-274-hml() {
+
+  KEEPASS_ENTRY_NAME='Bmp SCM Cabine 01 (Hml)'
+  SSHPASS_ENVIRONMENT_NAME=SSHPASS_10_204_205_15
+
+  fetch-keepass-entry-password --entryname $KEEPASS_ENTRY_NAME | read $SSHPASS_ENVIRONMENT_NAME
+
+  export $SSHPASS_ENVIRONMENT_NAME \
+    && echo "✅ The \"$KEEPASS_ENTRY_NAME\" password was exported into \"$SSHPASS_ENVIRONMENT_NAME\""
+}
+
+set-sshpass-environment-bmp-274-prd() {
+
+  KEEPASS_ENTRY_NAME='Cabine bmp ssh scm'
+  SSHPASS_ENVIRONMENT_NAME=SSHPASS_10_204_206_2
+
+  fetch-keepass-entry-password --entryname $KEEPASS_ENTRY_NAME | read $SSHPASS_ENVIRONMENT_NAME
+
+  export $SSHPASS_ENVIRONMENT_NAME \
+    && echo "✅ The \"$KEEPASS_ENTRY_NAME\" password was exported into \"$SSHPASS_ENVIRONMENT_NAME\""
+}
+
+set-sshpass-environment-bmp-531-prd() {
+
+  KEEPASS_ENTRY_NAME='Cabine bmp ssh (531)'
+  SSHPASS_ENVIRONMENT_NAME=SSHPASS_10_204_151_2
+
+  fetch-keepass-entry-password --entryname $KEEPASS_ENTRY_NAME | read $SSHPASS_ENVIRONMENT_NAME
+
+  export $SSHPASS_ENVIRONMENT_NAME \
+    && echo "✅ The \"$KEEPASS_ENTRY_NAME\" password was exported into \"$SSHPASS_ENVIRONMENT_NAME\""
+}
+
+set-sshpass-environment-our-prd() {
+
+  KEEPASS_ENTRY_NAME='Cabine Ourinvest usuário SSH'
+  SSHPASS_ENVIRONMENT_NAME=SSHPASS_10_204_155_2
+
+  fetch-keepass-entry-password --entryname $KEEPASS_ENTRY_NAME | read $SSHPASS_ENVIRONMENT_NAME
+
+  export $SSHPASS_ENVIRONMENT_NAME \
+    && echo "✅ The \"$KEEPASS_ENTRY_NAME\" password was exported into \"$SSHPASS_ENVIRONMENT_NAME\""
+}
+
+fetch-keepass-entry-password() {
+  zparseopts -E -D -- \
+    -entryname:=ENTRY_NAME
+
+  keepassxc-cli \
+    show ~/Dropbox/Aplicativos/KeeWeb/gokei-password-db.kdbx ${ENTRY_NAME[2]} \
+    -a password \
+    -k ~/Documents/gokei-password-db.key \
+    < <(echo $KEEPASSCLI_PASSWORD) \
+    | read PASSWORD \
+    && echo "✅ Keepass entry \"${ENTRY_NAME[2]}\" was fetched successfully" > /dev/stderr \
+    || echo "✖️ Something go wrong trying to fetch the Keepass \"${ENTRY_NAME[2]}\" entry" > /dev/stderr
+
+  echo $PASSWORD > /dev/stdout
+}
+
 connect-openfortivpn() {
   sudo nohup openfortivpn 177.185.15.35:11043 \
     -ugk.charles.sena \
