@@ -228,6 +228,8 @@ fi
 export PATH="/home/charles/.local/bin:$PATH"
 
 if [[ -z "$SSH_AUTH_SOCK" ]]; then
-  eval "$(ssh-agent -s)"
+  eval "$(ssh-agent -s)" > /dev/null
+  ssh-add ~/.ssh/gk_key_prd > /dev/null 2>&1
+  ssh-add ~/.ssh/gk_key_hml > /dev/null 2>&1
 fi
 
