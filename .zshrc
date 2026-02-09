@@ -68,49 +68,62 @@ set-openfortivpn-password() {
 
 connect-ssh() {
   zparseopts -E -D -- \
-    -target:=TARGET
+    -target:=O_TARGET
+
+  TARGET=${O_TARGET[2]}
 
   case "${TARGET}" in
-    '--target bmp-274-hml')
-      if [ -z "$SSHPASS_10_204_205_15" ]; then
-        echo "\"SSHPASS_10_204_205_15\" variable wasn't set, trying to export..." > /dev/stderr
-        set-sshpass-environment --target bmp-274-hml
-      fi
-      sshpass -eSSHPASS_10_204_205_15 ssh charles.sena@10.204.205.15
+    'bmp-274-hml')
+      exec-ssh-with-sshpass-fetching-keepass-target \
+        --sshpass-environment SSHPASS_10_204_205_15 \
+        --target bmp-274-hml \
+        charles.sena@10.204.205.15 "$@"
       ;;
 
-    '--target bmp-274-prd')
-      if [ -z "$SSHPASS_10_204_206_2" ]; then
-        echo "\"SSHPASS_10_204_206_2\" variable wasn't set, trying to export..." > /dev/stderr
-        set-sshpass-environment --target bmp-274-prd
-      fi
-      sshpass -eSSHPASS_10_204_206_2 ssh charles.sena@10.204.206.2
+    'bmp-274-prd')
+      exec-ssh-with-sshpass-fetching-keepass-target \
+        --sshpass-environment SSHPASS_10_204_206_2 \
+        --target bmp-274-prd \
+        charles.sena@10.204.206.2 "$@"
       ;;
 
-    '--target bmp-531-prd')
-      if [ -z "$SSHPASS_10_204_151_2" ]; then
-        echo "\"SSHPASS_10_204_151_2\" variable wasn't set, trying to export..." > /dev/stderr
-        set-sshpass-environment --target bmp-531-prd
-      fi
-      sshpass -eSSHPASS_10_204_151_2 ssh charles.sena@10.204.151.2
-
+    'bmp-531-prd')
+      exec-ssh-with-sshpass-fetching-keepass-target \
+        --sshpass-environment SSHPASS_10_204_151_2 \
+        --target bmp-531-prd \
+        charles.sena@10.204.151.2 "$@"
       ;;
 
-    '--target our-prd')
-      if [ -z "$SSHPASS_10_204_155_2" ]; then
-        echo "\"SSHPASS_10_204_155_2\" variable wasn't set, trying to export..." > /dev/stderr
-        set-sshpass-environment --target our-prd
-      fi
-      sshpass -eSSHPASS_10_204_155_2 ssh charles.sena@10.204.155.2
-
+    'our-prd')
+      exec-ssh-with-sshpass-fetching-keepass-target \
+        --sshpass-environment SSHPASS_10_204_155_2 \
+        --target our-prd \
+        charles.sena@10.204.155.2 "$@"
       ;;
-
 
     *)
       echo 'Invalid target' > /dev/stderr
       return 1
       ;;
   esac
+}
+
+exec-ssh-with-sshpass-fetching-keepass-target() {
+  zparseopts -E -D -- \
+    -sshpass-environment:=OPTION_SSHPASS_ENVIRONMENT \
+    -target:=OPTION_TARGET
+
+  TARGET=${OPTION_TARGET[2]}
+  ENVIRONMENT=${OPTION_SSHPASS_ENVIRONMENT[2]:-SSHPASS}
+  SSH_DEST=$1; shift
+
+  if [ -z "${(P)ENVIRONMENT}" ]; then
+    echo "\"$ENVIRONMENT\" wasn't set, trying to export..." > /dev/stderr
+    set-sshpass-environment --target $TARGET
+  fi
+
+  sshpass -e$ENVIRONMENT ssh $SSH_DEST "$@" 
+
 }
 
 mount-ssh() {
