@@ -40,16 +40,26 @@ dotfiles() {
   [[ ! -d ${git_dir} ]] && return 1 || git --git-dir=${git_dir} --work-tree=$HOME "$@"
 }
 
-check-inco-prd-password() {
-  echo Was set; [[ -z $SSHPASS_10_204_203_2 ]] && echo ❌ || echo ✅
+keepass-office() {
+  keepass ~/Dropbox/Aplicativos/KeeWeb/gokei-password-db.kdbx -k ~/Documents/gokei-password-db.key "$@"
 }
 
-set-inco-prd-password() {
-  export SSHPASS_10_204_203_2=`gum input --password`
-}
+keepass() {
+  zparseopts -E -D -- \
+    k:=O_DATABASE_KEY
 
-connect-inco-prd-ssh() {
-  sshpass -eSSHPASS_10_204_203_2 ssh -o ConnectTimeout=10 -i ~/.ssh/gk_key_prd charles.sena@10.204.203.2 || echo ❌ Connection has failed
+  DATABASE_KEY=${O_DATABASE_KEY[2]}
+
+  COMMAND=$2;
+  DATABASE_FILE=$1;
+
+  if [ -z "$KEEPASSCLI_PASSWORD" ]; then
+    echo "\"KEEPASSCLI_PASSWORD\" wasn't set"
+    export KEEPASSCLI_PASSWORD=`gum input --password` \
+      && echo "\"KEEPASSCLI_PASSWORD\" environment was set successfully"
+  fi
+
+  keepassxc-cli $COMMAND $DATABASE_FILE -k $DATABASE_KEY < <( echo $KEEPASSCLI_PASSWORD )
 }
 
 check-openfortivpn-password() {
