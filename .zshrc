@@ -47,7 +47,8 @@ keepass-office() {
 keepass() {
   zparseopts -E -D -- \
     k:=O_KEYFILE \
-    a+:=O_ATTRIBUTE
+    a+:=O_ATTRIBUTE \
+    -all=O_ALL
 
   VAULT_FILE=$1
   KEY_FILE=${O_KEYFILE[2]}
@@ -59,25 +60,28 @@ keepass() {
 
   shift $#
 
-  PASSWORD=$(/usr/bin/cat /dev/stdin > /dev/stdout)
+  PASSWORD=$(timeout 0.1s /usr/bin/cat /dev/stdin > /dev/stdout)
 
   if [ -z "$PASSWORD" ]; then
     prompt-password $VAULT_FILE | read PASSWORD
   fi
 
-  check-keepass-password $VAULT_FILE $KEY $PASSWORD || return 1
+  check-keepass-password $VAULT_FILE $KEY_FILE $PASSWORD || return 1
 
-  keepassxc-cli $COMMAND $VAULT_FILE -k $KEY_FILE ${O_ATTRIBUTE[@]} $ENTRY_TITLE < <(echo $PASSWORD) 2> /dev/null || return 1
+  keepassxc-cli $COMMAND $VAULT_FILE -k $KEY_FILE ${O_ALL} ${O_ATTRIBUTE[@]} $ENTRY_TITLE < <(echo $PASSWORD) 2> /dev/null || return 1
 }
 
 print-keepass-usage() {
   /usr/bin/cat <<- 'EOL'
 		Usage: keepass <database> <command> [<entry>] [options]
-		KeePassXC custum wrapper
+		KeePassXC custom wrapper
 		
 		Tested commands:
 		  ls	List entries
 		  show	Show an entry's information
+
+		Show Options:
+		  --all	Show all attributes of the entry
 		
 		Arguments:
 		  database	Database file path
