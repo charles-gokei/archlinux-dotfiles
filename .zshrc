@@ -41,25 +41,81 @@ dotfiles() {
 }
 
 keepass-office() {
-  keepass ~/Dropbox/Aplicativos/KeeWeb/gokei-password-db.kdbx -k ~/Documents/gokei-password-db.key "$@"
+  keepass ~/Dropbox/Aplicativos/KeeWeb/gokei-password-db.kdbx -k ~/Documents/gokei-password-db.key "$@" < <(echo $KEEPASSCLI_PASSWORD)
 }
 
 keepass() {
   zparseopts -E -D -- \
-    k:=O_DATABASE_KEY
+    k:=O_KEYFILE \
+    a+:=O_ATTRIBUTE
 
-  DATABASE_KEY=${O_DATABASE_KEY[2]}
+  VAULT_FILE=$1
+  KEY_FILE=${O_KEYFILE[2]}
+  COMMAND=$2
+  ENTRY_TITLE=$3
 
-  COMMAND=$2;
-  DATABASE_FILE=$1;
+  # INFO: `/usr/bin/cat` used absoulute path to avoid use of `bat`
+  [ $# -lt 2 ] && print-keepass-usage > /dev/stderr
 
-  if [ -z "$KEEPASSCLI_PASSWORD" ]; then
-    echo "\"KEEPASSCLI_PASSWORD\" wasn't set"
-    export KEEPASSCLI_PASSWORD=`gum input --password` \
-      && echo "\"KEEPASSCLI_PASSWORD\" environment was set successfully"
+  shift $#
+
+  PASSWORD=$(/usr/bin/cat /dev/stdin > /dev/stdout)
+
+  if [ -z "$PASSWORD" ]; then
+    prompt-password $VAULT_FILE | read PASSWORD
   fi
 
-  keepassxc-cli $COMMAND $DATABASE_FILE -k $DATABASE_KEY < <( echo $KEEPASSCLI_PASSWORD )
+  check-keepass-password $VAULT_FILE $KEY $PASSWORD || return 1
+
+  keepassxc-cli $COMMAND $VAULT_FILE -k $KEY_FILE ${O_ATTRIBUTE[@]} $ENTRY_TITLE < <(echo $PASSWORD) 2> /dev/null || return 1
+}
+
+print-keepass-usage() {
+  /usr/bin/cat <<- 'EOL'
+		Usage: keepass <database> <command> [<entry>] [options]
+		KeePassXC custum wrapper
+		
+		Tested commands:
+		  ls	List entries
+		  show	Show an entry's information
+		
+		Arguments:
+		  database	Database file path
+		  command	Name of the command to execute
+
+		Notes:
+		  You can set the password by stdin
+
+EOL
+}
+
+prompt-password() {
+  echo "Enter password to unlock: $VAULT_FILE:" > /dev/stderr
+  gum input --password | read PASSWORD
+
+  echo $PASSWORD
+}
+
+check-keepass-password() {
+  DATABASE=$1
+  KEY=$2
+  PASSWORD=$3
+
+  test-keepass-password $DATABASE $KEY $PASSWORD || \
+    error-message Wrong password
+}
+
+test-keepass-password() {
+  DATABASE=$1
+  KEY=$2
+  PASSWORD=$3
+
+  keepassxc-cli db-info $DATABASE -k $KEY > /dev/null 2>&1 < <( echo $PASSWORD ) || return 1
+}
+
+error-message() {
+  echo "$@" > /dev/stderr
+  return 1
 }
 
 check-openfortivpn-password() {
