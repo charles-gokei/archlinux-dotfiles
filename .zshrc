@@ -40,6 +40,15 @@ dotfiles() {
   [[ ! -d ${git_dir} ]] && return 1 || git --git-dir=${git_dir} --work-tree=$HOME "$@"
 }
 
+connect-ssh-office-bmp-274-hml() {
+  ENTRY='Bmp SCM Cabine 01 (Hml)'
+  
+  CONNECTION_DATA=(`keepass-office show -a host -a password $ENTRY`)
+
+  sshpass -p"${CONNECTION_DATA[2]}" ssh charles.sena@${CONNECTION_DATA[1]} "$@"
+
+}
+
 keepass-office() {
   keepass ~/Dropbox/Aplicativos/KeeWeb/gokei-password-db.kdbx -k ~/Documents/gokei-password-db.key "$@" < <(echo $KEEPASSCLI_PASSWORD)
 }
@@ -136,47 +145,48 @@ set-openfortivpn-password() {
 # SSH Connection
 # ===
 
-connect-ssh() {
-  zparseopts -E -D -- \
-    -target:=O_TARGET
 
-  TARGET=${O_TARGET[2]}
-
-  case "${TARGET}" in
-    'bmp-274-hml')
-      exec-ssh-with-sshpass-fetching-keepass-target \
-        --sshpass-environment SSHPASS_10_204_205_15 \
-        --target bmp-274-hml \
-        charles.sena@10.204.205.15 "$@"
-      ;;
-
-    'bmp-274-prd')
-      exec-ssh-with-sshpass-fetching-keepass-target \
-        --sshpass-environment SSHPASS_10_204_206_2 \
-        --target bmp-274-prd \
-        charles.sena@10.204.206.2 "$@"
-      ;;
-
-    'bmp-531-prd')
-      exec-ssh-with-sshpass-fetching-keepass-target \
-        --sshpass-environment SSHPASS_10_204_151_2 \
-        --target bmp-531-prd \
-        charles.sena@10.204.151.2 "$@"
-      ;;
-
-    'our-prd')
-      exec-ssh-with-sshpass-fetching-keepass-target \
-        --sshpass-environment SSHPASS_10_204_155_2 \
-        --target our-prd \
-        charles.sena@10.204.155.2 "$@"
-      ;;
-
-    *)
-      echo 'Invalid target' > /dev/stderr
-      return 1
-      ;;
-  esac
-}
+# connect-ssh() {
+#   zparseopts -E -D -- \
+#     -target:=O_TARGET
+#
+#   TARGET=${O_TARGET[2]}
+#
+#   case "${TARGET}" in
+#     'bmp-274-hml')
+#       exec-ssh-with-sshpass-fetching-keepass-target \
+#         --sshpass-environment SSHPASS_10_204_205_15 \
+#         --target bmp-274-hml \
+#         charles.sena@10.204.205.15 "$@"
+#       ;;
+#
+#     'bmp-274-prd')
+#       exec-ssh-with-sshpass-fetching-keepass-target \
+#         --sshpass-environment SSHPASS_10_204_206_2 \
+#         --target bmp-274-prd \
+#         charles.sena@10.204.206.2 "$@"
+#       ;;
+#
+#     'bmp-531-prd')
+#       exec-ssh-with-sshpass-fetching-keepass-target \
+#         --sshpass-environment SSHPASS_10_204_151_2 \
+#         --target bmp-531-prd \
+#         charles.sena@10.204.151.2 "$@"
+#       ;;
+#
+#     'our-prd')
+#       exec-ssh-with-sshpass-fetching-keepass-target \
+#         --sshpass-environment SSHPASS_10_204_155_2 \
+#         --target our-prd \
+#         charles.sena@10.204.155.2 "$@"
+#       ;;
+#
+#     *)
+#       echo 'Invalid target' > /dev/stderr
+#       return 1
+#       ;;
+#   esac
+# }
 
 exec-ssh-with-sshpass-fetching-keepass-target() {
   zparseopts -E -D -- \
