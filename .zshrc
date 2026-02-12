@@ -41,12 +41,24 @@ dotfiles() {
 }
 
 connect-ssh-office-bmp-274-hml() {
-  ENTRY='Bmp SCM Cabine 01 (Hml)'
-  
-  CONNECTION_DATA=(`keepass-office show -a host -a password $ENTRY`)
+  connect-ssh-office --entry 'Bmp SCM Cabine 01 (Hml)'
+}
+
+connect-ssh-office() {
+  zparseopts -E -D -- \
+    -entry:=O_ENTRY
+
+  ENTRY=${O_ENTRY[2]}
+
+  SSH_CONECTION=(`get-ssh-connection $ENTRY`)
 
   sshpass -p"${CONNECTION_DATA[2]}" ssh charles.sena@${CONNECTION_DATA[1]} "$@"
+}
 
+get-ssh-connection() {
+  ENTRY=$1;shift
+
+  echo $(keepass-office show -a host -a password $ENTRY)
 }
 
 keepass-office() {
