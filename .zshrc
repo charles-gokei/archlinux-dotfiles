@@ -44,6 +44,10 @@ connect-ssh-office-bmp-274-hml() {
   connect-ssh-office --entry 'Bmp SCM Cabine 01 (Hml)'
 }
 
+connect-ssh-office-bmp-531-prd() {
+  connect-ssh-office --entry 'Cabine bmp ssh (531)'
+}
+
 connect-ssh-office() {
   zparseopts -E -D -- \
     -entry:=O_ENTRY
@@ -530,11 +534,28 @@ if [ -z "${_mise_cmd_not_found:-}" ]; then
     }
 fi
 
+rsync-dropbox() {
+  nohup rclone mount --vfs-cache-mode=full --allow-other --cache-dir=$HOME/.local/share/rclone dropbox: ~/Dropbox > /tmp/rclone.out 2>&1 < /dev/null &
+}
+
 export PATH="/home/charles/.local/bin:$PATH"
 
 if [[ -z "$SSH_AUTH_SOCK" ]]; then
   eval "$(ssh-agent -s)" > /dev/null
   ssh-add ~/.ssh/gk_key_prd > /dev/null 2>&1
   ssh-add ~/.ssh/gk_key_hml > /dev/null 2>&1
+fi
+
+if [[ -x /home/linuxbrew/.linuxbrew/bin/aws ]]; then
+
+  # Load zsh completion functions related module
+  autoload -Uz compinit
+
+  # Enable zsh completer funtions calls
+  compinit
+
+  # Load aws-cli completer for zsh
+  AWS_COMPLETER=/home/linuxbrew/.linuxbrew/share/zsh/site-functions/aws_zsh_completer.sh
+  [[ -f $AWS_COMPLETER ]] && . $AWS_COMPLETER
 fi
 
