@@ -586,3 +586,7 @@ keepassxc-cli-cockpit-bmp-scm() {
     2> /dev/null
 }
 
+wsl-notify() { 
+  powershell.exe -NoProfile -Command "Import-Module BurntToast; New-BurntToastNotification -Text \"$@\""
+}
+
