@@ -559,3 +559,30 @@ if [[ -x /home/linuxbrew/.linuxbrew/bin/aws ]]; then
   [[ -f $AWS_COMPLETER ]] && . $AWS_COMPLETER
 fi
 
+ssh-cockpit-bmp-scm() {
+  local PASS=$(keepassxc-cli-cockpit-bmp-scm password)
+
+  sshpass -p$PASS ssh charles.sena@10.204.206.2 "$@"
+}
+
+sshfs-cockpit-bmp-scm() {
+  local PASS=$(keepassxc-cli-cockpit-bmp-scm password)
+
+  local SSHHOST=10.204.206.2
+
+  sshfs charles.sena@$SSHHOST:$1 $2  -o allow_other -o password_stdin "${@:3}" < <(echo $PASS) \
+    && echo "Success: $1 path was mounted at $2" > /dev/stderr \
+    || echo "Failure: $1 wans't mount" > /dev/stderr && return 1
+
+  return 0
+}
+
+keepassxc-cli-cockpit-bmp-scm() {
+  keepassxc-cli \
+    show ~/Dropbox/Aplicativos/KeeWeb/gokei-password-db.kdbx \
+    'Cabine bmp ssh scm' -a "$1" \
+    -k ~/Documents/gokei-password-db.key \
+    < $KEEPASS_PASSFILE \
+    2> /dev/null
+}
+
