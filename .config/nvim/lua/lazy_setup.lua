@@ -30,3 +30,8 @@ require("lazy").setup({
     },
   },
 } --[[@as LazyConfig]])
+
+-- Aerial turnaround
+require("aerial").setup({
+  backends = { "lsp" }
+})
