@@ -590,3 +590,5 @@ wsl-notify() {
   powershell.exe -NoProfile -Command "Import-Module BurntToast; New-BurntToastNotification -Text \"$@\""
 }
 
+[[ -x `which rip` ]] && alias rm=rip || echo rm-rip not found: Using builtin rm
+
