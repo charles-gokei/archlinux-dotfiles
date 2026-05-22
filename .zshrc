@@ -565,6 +565,24 @@ ssh-cockpit-bmp-scm() {
   sshpass -p$PASS ssh charles.sena@10.204.206.2 "$@"
 }
 
+ssh-cockpit-bmp-scd-hml() {
+  ENTRY_NAME='Cabine BMP de homologação ssh' 
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password)
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host)
+
+  sshpass -p$PASS ssh charles.sena@$HOST "$@"
+}
+
+sshfs-cockpit-bmp-scd-hml() {
+  ENTRY_NAME='Cabine BMP de homologação ssh' 
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password)
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host)
+
+  sshfs charles.sena@$HOST:$1 $2  -o allow_other -o password_stdin "${@:3}" < <(echo $PASS) \
+    && echo "Success: $1 path was mounted at $2" > /dev/stderr \
+    || echo "Failure: $1 wans't mount" > /dev/stderr && return 1
+}
+
 sshfs-cockpit-bmp-scm() {
   local PASS=$(keepassxc-cli-cockpit-bmp-scm password)
 
@@ -584,6 +602,35 @@ keepassxc-cli-cockpit-bmp-scm() {
     -k ~/Documents/gokei-password-db.key \
     < $KEEPASS_PASSFILE \
     2> /dev/null
+}
+
+keepassxc-cli-office() {
+
+  COMMAND=$1
+  ENTRY_OR_DIRECTORY_NAME=$2
+
+  [ $# > 2 ] && shift 2
+
+  eval set -- $(getopt -o a: -l attributes: -- "$@")
+
+  declare -a ATTRIBUTES
+
+  while true; do
+    case "$1" in
+      -a|--attributes)
+        ATTRIBUTES+=(-a $2)
+        shift 2
+        ;;
+      --) shift;  break;;
+    esac
+  done
+
+  keepassxc-cli ${COMMAND} \
+    ~/Dropbox/Aplicativos/KeeWeb/gokei-password-db.kdbx \
+    "${ENTRY_OR_DIRECTORY_NAME}" \
+    ${ATTRIBUTES} \
+    -k ~/Documents/gokei-password-db.key \
+    < ${KEEPASS_PASSFILE} \
 }
 
 wsl-notify() { 
