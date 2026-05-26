@@ -560,23 +560,26 @@ if [[ -x /home/linuxbrew/.linuxbrew/bin/aws ]]; then
 fi
 
 ssh-cockpit-bmp-scm() {
-  local PASS=$(keepassxc-cli-cockpit-bmp-scm password)
+  ENTRY_NAME='Cabine bmp ssh scm' 
 
-  sshpass -p$PASS ssh charles.sena@10.204.206.2 "$@"
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
+
+  sshpass -p$PASS ssh charles.sena@$HOST "$@"
 }
 
 ssh-cockpit-bmp-scd-hml() {
   ENTRY_NAME='Cabine BMP de homologação ssh' 
-  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password)
-  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host)
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
 
   sshpass -p$PASS ssh charles.sena@$HOST "$@"
 }
 
 sshfs-cockpit-bmp-scd-hml() {
   ENTRY_NAME='Cabine BMP de homologação ssh' 
-  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password)
-  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host)
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
 
   sshfs charles.sena@$HOST:$1 $2  -o allow_other -o password_stdin "${@:3}" < <(echo $PASS) \
     && echo "Success: $1 path was mounted at $2" > /dev/stderr \
@@ -595,21 +598,13 @@ sshfs-cockpit-bmp-scm() {
   return 0
 }
 
-keepassxc-cli-cockpit-bmp-scm() {
-  keepassxc-cli \
-    show ~/Dropbox/Aplicativos/KeeWeb/gokei-password-db.kdbx \
-    'Cabine bmp ssh scm' -a "$1" \
-    -k ~/Documents/gokei-password-db.key \
-    < $KEEPASS_PASSFILE \
-    2> /dev/null
-}
-
 keepassxc-cli-office() {
 
+  KEEPASS_PASSFILE=~/.local/share/passwords/keepassxc
   COMMAND=$1
   ENTRY_OR_DIRECTORY_NAME=$2
 
-  [ $# > 2 ] && shift 2
+  [[ $# > 2 ]] && shift 2
 
   eval set -- $(getopt -o a: -l attributes: -- "$@")
 
