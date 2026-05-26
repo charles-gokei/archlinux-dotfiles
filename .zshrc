@@ -18,16 +18,12 @@ export ENABLE_RUST_TOOLS=1
 export ORIGIN_LS=`which ls`
 export ORIGIN_CAT=`which cat`
 
-f-ls() {
-  [[ $ENABLE_RUST_TOOLS -gt 0 ]] && exa --icons --group-directories-first "$@" || $ORIGIN_LS "$@";
-}
+local WARNING='\033[33m'
+local RESET='\033[0m'
 
-f-cat() {
-  [[ $ENABLE_RUST_TOOLS -gt 0 ]] && bat --style=auto "$@" || $ORIGIN_CAT "$@";
-}
-
-alias ls='f-ls'
-alias cat='f-cat'
+[[ -x `which exa` ]] && alias ls='exa --icons --group-directories-first' || echo -e "${WARNING}exa not found: using builtin ls command${RESET}" > /dev/stderr
+[[ -x `which bat` ]] && alias cat='bat --style=auto' || echo -e "${WARNING}bat not found: Using builtin cat command${RESET}" > /dev/stderr
+[[ -x `which rip` ]] && alias rm=rip || echo -e "${WARNING}rm-rip not found: Using builtin rm command${RESET}" > /dev/stderr
 
 [[ ! -x /home/linuxbrew/.linuxbrew/bin/brew ]] || eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 alias {vi,vim}=nvim
@@ -640,5 +636,4 @@ wsl-notify() {
   powershell.exe -NoProfile -Command "Import-Module BurntToast; New-BurntToastNotification -Text \"$@\""
 }
 
-[[ -x `which rip` ]] && alias rm=rip || echo rm-rip not found: Using builtin rm
 
