@@ -568,6 +568,14 @@ ssh-cockpit-bmp-scm() {
   sshpass -p$PASS ssh charles.sena@$HOST "$@"
 }
 
+ssh-cockpit-bmp-scd() {
+  ENTRY_NAME='Cabine bmp SCD ssh (531)' 
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
+
+  sshpass -p$PASS ssh charles.sena@$HOST "$@"
+}
+
 ssh-cockpit-bmp-scd-hml() {
   ENTRY_NAME='Cabine BMP de homologação ssh' 
   local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
