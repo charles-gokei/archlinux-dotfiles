@@ -19,6 +19,7 @@ export ORIGIN_LS=`which ls`
 export ORIGIN_CAT=`which cat`
 
 local WARNING='\033[33m'
+local ERROR='\033[31m'
 local RESET='\033[0m'
 
 [[ -x `which exa` ]] && alias ls='exa --icons --group-directories-first' || echo -e "${WARNING}exa not found: using builtin ls command${RESET}" > /dev/stderr
@@ -587,7 +588,7 @@ sshfs-cockpit-bmp-scd-hml() {
 
   sshfs charles.sena@$HOST:$1 $2  -o allow_other -o password_stdin "${@:3}" < <(echo $PASS) \
     && echo "Success: $1 path was mounted at $2" > /dev/stderr \
-    || echo "Failure: $1 wans't mount" > /dev/stderr && return 1
+    || echo "${ERROR}Failure: $1 wasn't mount${RESET}" > /dev/stderr && return 1
 }
 
 sshfs-cockpit-bmp-scm() {
@@ -597,7 +598,7 @@ sshfs-cockpit-bmp-scm() {
 
   sshfs charles.sena@$SSHHOST:$1 $2  -o allow_other -o password_stdin "${@:3}" < <(echo $PASS) \
     && echo "Success: $1 path was mounted at $2" > /dev/stderr \
-    || echo "Failure: $1 wans't mount" > /dev/stderr && return 1
+    || echo "${ERROR}Failure: $1 wasn't mount${RESET}" > /dev/stderr && return 1
 
   return 0
 }
