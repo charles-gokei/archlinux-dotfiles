@@ -565,6 +565,15 @@ ssh-cockpit-bmp-scm() {
   sshpass -p$PASS ssh charles.sena@$HOST "$@"
 }
 
+ssh-cockpit-bmp-scm-hml() {
+  ENTRY_NAME='Bmp SCM Cabine 01 (Hml)' 
+
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
+
+  sshpass -p$PASS ssh charles.sena@$HOST "$@"
+}
+
 ssh-cockpit-bmp-scd() {
   ENTRY_NAME='Cabine bmp SCD ssh (531)' 
   local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
@@ -579,6 +588,16 @@ ssh-cockpit-bmp-scd-hml() {
   local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
 
   sshpass -p$PASS ssh charles.sena@$HOST "$@"
+}
+
+sshfs-cockpit-bmp-scd() {
+  ENTRY_NAME='Cabine bmp SCD ssh (531)' 
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
+
+  sshfs charles.sena@$HOST:$1 $2  -o allow_other -o password_stdin "${@:3}" < <(echo $PASS) \
+    && echo "Success: $1 path was mounted at $2" > /dev/stderr \
+    || echo "${ERROR}Failure: $1 wasn't mount${RESET}" > /dev/stderr && return 1
 }
 
 sshfs-cockpit-bmp-scd-hml() {
@@ -601,6 +620,47 @@ sshfs-cockpit-bmp-scm() {
     || echo "${ERROR}Failure: $1 wasn't mount${RESET}" > /dev/stderr && return 1
 
   return 0
+}
+
+ssh-cockpit-inco() {
+  ENTRY_NAME='SSH Servidor INCO produção' 
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
+
+  sshpass -p$PASS ssh charles.sena@$HOST "$@"
+}
+
+ssh-cockpit-inco-hml() {
+  ENTRY_NAME='Cabine INCO de Homologação' 
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
+
+  sshpass -p$PASS ssh charles.sena@$HOST "$@"
+}
+
+ssh-cockpit-beeteller() {
+  ENTRY_NAME='Cabine Beeteller SSH'
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
+
+  sshpass -p$PASS ssh charles.sena@$HOST "$@"
+}
+
+ssh-cockpit-beeteller-hml() {
+  ENTRY_NAME='Cabine Beeteller de homologação'
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a host 2> /dev/null )
+
+  sshpass -p$PASS ssh charles.sena@$HOST "$@"
+}
+
+
+ssh-gokeipsti() {
+  ENTRY_NAME='Gokei psti (Servidor)' 
+  local PASS=$(keepassxc-cli-office show $ENTRY_NAME -a password 2> /dev/null )
+  local HOST=$(keepassxc-cli-office show $ENTRY_NAME -a 'Host domain' 2> /dev/null )
+
+  sshpass -p$PASS ssh charles.sena@$HOST "$@"
 }
 
 keepassxc-cli-office() {
@@ -637,4 +697,12 @@ wsl-notify() {
   powershell.exe -NoProfile -Command "Import-Module BurntToast; New-BurntToastNotification -Text \"$@\""
 }
 
+bindkey -s '^z' zellij-init
 
+zellij-init() {
+  [ -z "$ZELLIJ" ] && zellij attach `get-last-zellij-session-name` || zellij new-session
+}
+
+local get-last-zellij-session-name() {
+  zellij ls -rn | head -1 | sed -E 's/^(.+) \[.*$/\1/g'
+}
